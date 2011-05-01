@@ -39,13 +39,17 @@ git submodule add git://github.com/michelsalib/ExtraToolsBundle.git vendor/bundl
 You now have the new command. You can use it like that :
 
 - To extract the messages of your bundle and display them in the console
+
     bcc:trans:update --dump-messages fr MyBundle
 
 - You can save them
+
     bcc:trans:update --force fr MyBundle
 
 - In another language
+
     bcc:trans:update --force en MyBundle
 
 - Or if you want to chaneg the prefix used to generate the new messages
+
     bcc:trans:update --force --prefix='myprefix' en MyBundle
