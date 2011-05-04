@@ -121,7 +121,9 @@ class UpdateTransCommand extends Command {
                 foreach ($this->mergedMessages as $domain => $messages) {
                     $file = $domain . '.' . $input->getArgument('locale') . '.' . $input->getOption('output-format');
                     // backup
-                    copy($path . $file, $path . '~' . $file);
+                    if (file_exists($path . $file)) {
+                        copy($path . $file, $path . '~' . $file . '.bak');
+	            }
                     $this->output->writeln(sprintf(' > generating <comment>%s</comment>', $path . $file));
                     if ($input->getOption('output-format') == 'xliff') {
                         $dom = new \DOMDocument('1.0', 'utf-8');
