@@ -33,6 +33,14 @@ class UpdateTransCommand extends Command {
                             'Override the default prefix', '__'
                     ),
                     new InputOption(
+                            'output-format', null, InputOption::VALUE_OPTIONAL,
+                            'Override the default output format (yml or xliff currently supported)', 'yml'
+                    ),
+                    new InputOption(
+                            'source-lang', null, InputOption::VALUE_OPTIONAL,
+                            'Set the source language attribute in xliff files', 'en'
+                    ),
+                    new InputOption(
                             'dump-messages', null, InputOption::VALUE_NONE,
                             'Should the messages be dumped in the console'
                     ),
@@ -50,40 +58,49 @@ class UpdateTransCommand extends Command {
         $this->output = $output;
 
         $twig = $this->container->get('twig');
-        
-        if($input->getOption('force') !== true && $input->getOption('dump-messages') !== true){
+
+        if ($input->getOption('force') !== true && $input->getOption('dump-messages') !== true) {
             $this->output->writeln('You should choose option --force or --dump-messages');
-        }
-        else{
+        } else {
             // get bundle directory
             $foundBundle = $this->getApplication()->getKernel()->getBundle($input->getArgument('bundle'));
-            
+            $output->writeln(sprintf('Generating "<info>%s</info>" translation files for "<info>%s</info>"', $input->getArgument('locale'), $foundBundle->getName()));
+
             // get prefix
             $this->_prefix = $input->getOption('prefix');
-            
+
+            $output->writeln('Parsing files.');
+
             // load messages from templates
             $finder = new Finder();
             $files = $finder->files()->name('*.html.twig')->in($foundBundle->getPath() . '/Resources/views/');
             foreach ($files as $file) {
-                $this->output->writeln('Parsing : ' . $file->getPathname());
+                $this->output->writeln(sprintf(' > parsing template <comment>%s</comment>', $file->getPathname()));
                 $tree = $twig->parse($twig->tokenize(file_get_contents($file->getPathname())));
                 $this->_crawlNode($tree);
             }
 
-            // load messages from trans files
+            // load messages from trans yml files
             $finder = new Finder();
             $files = $finder->files()->name('*.' . $input->getArgument('locale') . '.yml')->in($foundBundle->getPath() . '/Resources/translations');
             foreach ($files as $file) {
-                $this->output->writeln('Parsing : ' . $file->getPathname());
+                $this->output->writeln(sprintf(' > parsing translation <comment>%s</comment>', $file->getPathname()));
                 $yml = \Symfony\Component\Yaml\Yaml::load($file->getPathname());
                 //get domain
                 $domain = substr($file->getFileName(), 0, strrpos($file->getFileName(), $input->getArgument('locale') . '.yml') - 1);
                 $this->filesMessages[$domain] = $yml;
             }
+            $finder = new Finder();
+            $files = $finder->files()->name('*.' . $input->getArgument('locale') . '.xliff')->in($foundBundle->getPath() . '/Resources/translations');
+            foreach ($files as $file) {
+                $this->output->writeln(sprintf(' > parsing translation <comment>%s</comment>', $file->getPathname()));
+                $domain = substr($file->getFileName(), 0, strrpos($file->getFileName(), $input->getArgument('locale') . '.xliff') - 1);
+                $loader = new \Symfony\Component\Translation\Loader\XliffFileLoader();
+                $catalogue = $loader->load($file->getPathname(), $input->getArgument('locale'), $domain);
+                $this->filesMessages = $this->_deepMerge($this->filesMessages, $catalogue->all());
+            }
 
             // merge
-            $this->output->writeln('');
-            $this->output->writeln('Merging...');
             $this->mergedMessages = $this->_deepMerge($this->templatesMessages, $this->filesMessages);
 
             // show files messages
@@ -95,20 +112,46 @@ class UpdateTransCommand extends Command {
                     $this->_displayArray($messages);
                 }
             }
-            
+
             // save the files
-            if($input->getOption('force') === true){
+            if($input->getOption('force') === true) {
                 $this->output->writeln('');
-                $this->output->writeln('Writing files...');
+                $this->output->writeln('Writing files.');
                 $path = $foundBundle->getPath() . '/Resources/translations/';
                 foreach ($this->mergedMessages as $domain => $messages) {
-                    $file = $domain . '.' . $input->getArgument('locale') . '.yml';
-                    $this->output->writeln('Writing ' . $file);
-                    $yml = \Symfony\Component\Yaml\Yaml::dump($messages,10);
+                    $file = $domain . '.' . $input->getArgument('locale') . '.' . $input->getOption('output-format');
                     // backup
-                    copy($path . $file, $path . '~' . $file);
-                    // write
-                    file_put_contents($path . $file, $yml);
+                    if (file_exists($path . $file)) {
+                        copy($path . $file, $path . '~' . $file . '.bak');
+	            }
+                    $this->output->writeln(sprintf(' > generating <comment>%s</comment>', $path . $file));
+                    if ($input->getOption('output-format') == 'xliff') {
+                        $dom = new \DOMDocument('1.0', 'utf-8');
+                        $dom->formatOutput = true;
+                        $xliff = $dom->appendChild($dom->createElement('xliff'));
+                        $xliff->setAttribute('version', '1.2');
+                        $xliff->setAttribute('xmlns', 'urn:oasis:names:tc:xliff:document:1.2');
+                        $xliff_file = $xliff->appendChild($dom->createElement('file'));
+                        $xliff_file->setAttribute('source-language', $input->getOption('source-lang'));
+                        $xliff_file->setAttribute('datatype', 'plaintext');
+                        $xliff_file->setAttribute('original', 'file.ext');
+                        $xliff_body = $xliff_file->appendChild($dom->createElement('body'));
+                        $id = 1;
+                        foreach ($messages as $source => $target) {
+                            $trans = $dom->createElement('trans-unit');
+                            $trans->setAttribute('id', $id);
+                            $s = $trans->appendChild($dom->createElement('source'));
+                            $s->appendChild($dom->createTextNode($source));
+                            $t = $trans->appendChild($dom->createElement('target'));
+                            $t->appendChild($dom->createTextNode($target));
+                            $xliff_body->appendChild($trans);
+                            $id++;
+                        }
+                        $dom->save($path . $file);
+                    } else {
+                        $yml = \Symfony\Component\Yaml\Yaml::dump($messages,10);
+                        file_put_contents($path . $file, $yml);
+                    }
                 }
             }
         }
@@ -146,11 +189,11 @@ class UpdateTransCommand extends Command {
                     $this->_crawlNode($child);
         }
     }
-    
+
     /**
      * Extract a message from a \Twig_Node_Print
      * Return null if not a constant message
-     * @param \Twig_Node $node 
+     * @param \Twig_Node $node
      */
     private function _extractMessage(\Twig_Node $node){
         if($node->hasNode('node'))
@@ -159,11 +202,11 @@ class UpdateTransCommand extends Command {
             return $node->getAttribute('value');
         return null;
     }
-    
+
     /**
      * Extract a domain from a \Twig_Node_Print
      * Return null if no trans filter
-     * @param \Twig_Node $node 
+     * @param \Twig_Node $node
      */
     private function _extractDomain(\Twig_Node $node){
         // must be a filter node
@@ -179,11 +222,11 @@ class UpdateTransCommand extends Command {
         // try child
         return $this->_extractDomain($node->getNode('node'));
     }
-    
+
     /**
      * Save a message to the templateMessages array
      * @param type $message
-     * @param type $domain 
+     * @param type $domain
      */
     private function _saveMessage($message, $domain){
         // create the domain
@@ -199,7 +242,7 @@ class UpdateTransCommand extends Command {
     /**
      * Recursive function that display a tree-shaped array
      * @param array The array to display
-     * @param type The offset to use for display purpose 
+     * @param type The offset to use for display purpose
      */
     private function _displayArray(array $array, $level = 0) {
         foreach ($array as $key => $value) {
@@ -215,7 +258,7 @@ class UpdateTransCommand extends Command {
 
     /**
      * Merge N arrays recursively, avoid doublons
-     * @return type 
+     * @return type
      */
     private function _deepMerge() {
         $arrays = func_get_args();
