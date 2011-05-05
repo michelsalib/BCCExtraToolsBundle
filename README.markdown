@@ -4,13 +4,13 @@ It a bundle that contains some usefull symfony2 tools.
 
 ## Features:
 
-- a trans:update command that extract all your missing i18n message from your twig templates and saves into yaml, xliff or php translation files.
+- a `bcc:trans:update` command that extract all your missing i18n message from your twig templates and saves into yaml, xliff or php translation files.
 
 ## Installation and configuration:
 
 ### Get the bundle
 
-git submodule add git://github.com/michelsalib/ExtraToolsBundle.git vendor/bundles/BCC/ExtraToolsBundle
+`git submodule add git://github.com/michelsalib/ExtraToolsBundle.git vendor/bundles/BCC/ExtraToolsBundle`
 
 ### Register the namespace
 
@@ -38,7 +38,7 @@ git submodule add git://github.com/michelsalib/ExtraToolsBundle.git vendor/bundl
 
 You now have the new command. You can use it as follows:
 
-- To extract the messages of your bundle and display them in the console:
+- To extract messages from your bundle and display in the console:
 
     `bcc:trans:update --dump-messages fr MyBundle`
 
@@ -50,7 +50,7 @@ You now have the new command. You can use it as follows:
 
     `bcc:trans:update --force en MyBundle`
 
-- Specify the language output format with the `--output-format` option (either `yml`, `xliff` or `php`):
+- Specify the output format with the `--output-format` option (either `yml`, `xliff` or `php`):
 
     `bcc:trans:update --output-format="xliff" --force en MyBundle`
 
