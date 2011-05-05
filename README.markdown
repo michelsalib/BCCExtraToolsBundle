@@ -4,13 +4,13 @@ It a bundle that contains some usefull symfony2 tools.
 
 ## Features:
 
-- a trans:update command that extract all your missing i18n message from your twig templates and saves into yaml translation files.
+- a `bcc:trans:update` command that extract all your missing i18n message from your twig templates and saves into yaml, xliff or php translation files.
 
 ## Installation and configuration:
 
 ### Get the bundle
 
-git submodule add git://github.com/michelsalib/ExtraToolsBundle.git vendor/bundles/BCC/ExtraToolsBundle
+`git submodule add git://github.com/michelsalib/ExtraToolsBundle.git vendor/bundles/BCC/ExtraToolsBundle`
 
 ### Register the namespace
 
@@ -36,20 +36,24 @@ git submodule add git://github.com/michelsalib/ExtraToolsBundle.git vendor/bundl
 
 ### bcc:trans:update command example
 
-You now have the new command. You can use it like that :
+You now have the new command. You can use it as follows:
 
-- To extract the messages of your bundle and display them in the console
+- To extract messages from your bundle and display in the console:
 
-    bcc:trans:update --dump-messages fr MyBundle
+    `bcc:trans:update --dump-messages fr MyBundle`
 
-- You can save them
+- You can save them to the `MyBundle\Resources\translations` directory:
 
-    bcc:trans:update --force fr MyBundle
+    `bcc:trans:update --force fr MyBundle`
 
-- In another language
+- In another language:
 
-    bcc:trans:update --force en MyBundle
+    `bcc:trans:update --force en MyBundle`
 
-- Or if you want to chaneg the prefix used to generate the new messages
+- Specify the output format with the `--output-format` option (either `yml`, `xliff` or `php`):
 
-    bcc:trans:update --force --prefix='myprefix' en MyBundle
+    `bcc:trans:update --output-format="xliff" --force en MyBundle`
+
+- Change the prefix used for newly added messages with the `--prefix` option:
+
+    `bcc:trans:update --output-format="xliff" --force --prefix='myprefix' en MyBundle`

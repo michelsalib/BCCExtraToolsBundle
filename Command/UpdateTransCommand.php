@@ -11,11 +11,11 @@ use Symfony\Component\Console\Input\InputOption;
 
 class UpdateTransCommand extends Command {
 
-	/**
-	 * Deafult domain for found trans blocks/filters
-	 *
-	 * @var string
-	 */
+    /**
+     * Deafult domain for found trans blocks/filters
+     *
+     * @var string
+     */
     private $defaultDomain = 'messages';
 
     /**
@@ -98,9 +98,9 @@ class UpdateTransCommand extends Command {
             $finder = new Finder();
             $files = $finder->files()->name('*.' . $input->getArgument('locale') . '.yml')->in($bundleTransPath);
             foreach ($files as $file) {
-            	$output->writeln(sprintf(' > parsing translation <comment>%s</comment>', $file->getPathname()));
-            	$domain = substr($file->getFileName(), 0, strrpos($file->getFileName(), $input->getArgument('locale') . '.yml') - 1);
-            	$yml_loader = new \Symfony\Component\Translation\Loader\YamlFileLoader();
+                $output->writeln(sprintf(' > parsing translation <comment>%s</comment>', $file->getPathname()));
+                $domain = substr($file->getFileName(), 0, strrpos($file->getFileName(), $input->getArgument('locale') . '.yml') - 1);
+                $yml_loader = new \Symfony\Component\Translation\Loader\YamlFileLoader();
                 $this->messages->addCatalogue($yml_loader->load($file->getPathname(), $input->getArgument('locale'), $domain));
             }
 
@@ -115,7 +115,7 @@ class UpdateTransCommand extends Command {
             }
 
             // load any existing php translation files
-        	$finder = new Finder();
+            $finder = new Finder();
             $files = $finder->files()->name('*.' . $input->getArgument('locale') . '.php')->in($bundleTransPath);
             foreach ($files as $file) {
                 $output->writeln(sprintf(' > parsing translation <comment>%s</comment>', $file->getPathname()));
@@ -127,8 +127,8 @@ class UpdateTransCommand extends Command {
             // show compiled list of messages
             if($input->getOption('dump-messages') === true){
                 foreach ($this->messages->getDomains() as $domain) {
-                	$output->writeln(sprintf("\nDisplaying messages for domain <info>%s</info>:\n", $domain));
-                	$output->writeln(\Symfony\Component\Yaml\Yaml::dump($this->messages->all($domain),10));
+                    $output->writeln(sprintf("\nDisplaying messages for domain <info>%s</info>:\n", $domain));
+                    $output->writeln(\Symfony\Component\Yaml\Yaml::dump($this->messages->all($domain),10));
                 }
             }
 
@@ -136,43 +136,20 @@ class UpdateTransCommand extends Command {
             if($input->getOption('force') === true) {
                 $output->writeln("\nWriting files.\n");
                 $path = $foundBundle->getPath() . '/Resources/translations/';
+                if ($input->getOption('output-format') == 'yml') {
+                    $formatter = new \BCC\ExtraToolsBundle\Translation\Formatter\YmlFormatter();
+                } elseif ($input->getOption('output-format') == 'php') {
+                    $formatter = new \BCC\ExtraToolsBundle\Translation\Formatter\PhpFormatter();
+                } else {
+                    $formatter = new \BCC\ExtraToolsBundle\Translation\Formatter\XliffFormatter($input->getOption('source-lang'));
+                }
                 foreach ($this->messages->getDomains() as $domain) {
-
                     $file = $domain . '.' . $input->getArgument('locale') . '.' . $input->getOption('output-format');
-                    // backup
                     if (file_exists($path . $file)) {
                         copy($path . $file, $path . '~' . $file . '.bak');
-	            	}
-
-                    $output->writeln(sprintf(' > generating <comment>%s</comment>', $path . $file));
-
-                    if ($input->getOption('output-format') == 'xliff') {
-                        $dom = new \DOMDocument('1.0', 'utf-8');
-                        $dom->formatOutput = true;
-                        $xliff = $dom->appendChild($dom->createElement('xliff'));
-                        $xliff->setAttribute('version', '1.2');
-                        $xliff->setAttribute('xmlns', 'urn:oasis:names:tc:xliff:document:1.2');
-                        $xliffFile = $xliff->appendChild($dom->createElement('file'));
-                        $xliffFile->setAttribute('source-language', $input->getOption('source-lang'));
-                        $xliffFile->setAttribute('datatype', 'plaintext');
-                        $xliffFile->setAttribute('original', 'file.ext');
-                        $xliffBody = $xliffFile->appendChild($dom->createElement('body'));
-                        $id = 1;
-                        foreach ($this->messages->all($domain) as $source => $target) {
-                            $trans = $dom->createElement('trans-unit');
-                            $trans->setAttribute('id', $id);
-                            $s = $trans->appendChild($dom->createElement('source'));
-                            $s->appendChild($dom->createTextNode($source));
-                            $t = $trans->appendChild($dom->createElement('target'));
-                            $t->appendChild($dom->createTextNode($target));
-                            $xliffBody->appendChild($trans);
-                            $id++;
-                        }
-                        $dom->save($path . $file);
-                    } else {
-                        $yml = \Symfony\Component\Yaml\Yaml::dump($this->messages->all($domain),10);
-                        file_put_contents($path . $file, $yml);
                     }
+                    $output->writeln(sprintf(' > generating <comment>%s</comment>', $path . $file));
+                    file_put_contents($path . $file, $formatter->format($this->messages->all($domain)));
                 }
             }
         }
@@ -186,19 +163,19 @@ class UpdateTransCommand extends Command {
     private function _crawlNode(\Twig_Node $node)
     {
         if ($node instanceof \Symfony\Bridge\Twig\Node\TransNode && !$node->getNode('body') instanceof \Twig_Node_Expression_GetAttr) {
-        	// trans block
+            // trans block
             $domain = $node->getNode('domain')->getAttribute('value');
             $message = $node->getNode('body')->getAttribute('data');
             $this->messages->set($message, $this->prefix.$message, $domain);
         } else if ($node instanceof \Twig_Node_Print) {
-        	// trans filter (be carefull of how you chain your filters)
+            // trans filter (be carefull of how you chain your filters)
             $message = $this->_extractMessage($node->getNode('expr'));
             $domain = $this->_extractDomain($node->getNode('expr'));
             if($message !== null && $domain!== null) {
                  $this->messages->set($message, $this->prefix.$message, $domain);
             }
         } else {
-        	// continue crawling
+            // continue crawling
             foreach ($node as $child) {
                 if ($child != null) {
                     $this->_crawlNode($child);
@@ -219,7 +196,7 @@ class UpdateTransCommand extends Command {
             return $this->_extractMessage($node->getNode ('node'));
         }
         if($node instanceof \Twig_Node_Expression_Constant) {
-        	return $node->getAttribute('value');
+            return $node->getAttribute('value');
         }
 
         return null;
