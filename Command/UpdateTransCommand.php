@@ -136,43 +136,20 @@ class UpdateTransCommand extends Command {
             if($input->getOption('force') === true) {
                 $output->writeln("\nWriting files.\n");
                 $path = $foundBundle->getPath() . '/Resources/translations/';
+                if ($input->getOption('output-format') == 'yml') {
+                	$formatter = new \BCC\ExtraToolsBundle\Translation\Formatter\YmlFormatter();
+                } elseif ($input->getOption('output-format') == 'php') {
+                	$formatter = new \BCC\ExtraToolsBundle\Translation\Formatter\PhpFormatter();
+                } else {
+                    $formatter = new \BCC\ExtraToolsBundle\Translation\Formatter\XliffFormatter($input->getOption('source-lang'));
+                }
                 foreach ($this->messages->getDomains() as $domain) {
-
                     $file = $domain . '.' . $input->getArgument('locale') . '.' . $input->getOption('output-format');
-                    // backup
                     if (file_exists($path . $file)) {
                         copy($path . $file, $path . '~' . $file . '.bak');
 	            	}
-
                     $output->writeln(sprintf(' > generating <comment>%s</comment>', $path . $file));
-
-                    if ($input->getOption('output-format') == 'xliff') {
-                        $dom = new \DOMDocument('1.0', 'utf-8');
-                        $dom->formatOutput = true;
-                        $xliff = $dom->appendChild($dom->createElement('xliff'));
-                        $xliff->setAttribute('version', '1.2');
-                        $xliff->setAttribute('xmlns', 'urn:oasis:names:tc:xliff:document:1.2');
-                        $xliffFile = $xliff->appendChild($dom->createElement('file'));
-                        $xliffFile->setAttribute('source-language', $input->getOption('source-lang'));
-                        $xliffFile->setAttribute('datatype', 'plaintext');
-                        $xliffFile->setAttribute('original', 'file.ext');
-                        $xliffBody = $xliffFile->appendChild($dom->createElement('body'));
-                        $id = 1;
-                        foreach ($this->messages->all($domain) as $source => $target) {
-                            $trans = $dom->createElement('trans-unit');
-                            $trans->setAttribute('id', $id);
-                            $s = $trans->appendChild($dom->createElement('source'));
-                            $s->appendChild($dom->createTextNode($source));
-                            $t = $trans->appendChild($dom->createElement('target'));
-                            $t->appendChild($dom->createTextNode($target));
-                            $xliffBody->appendChild($trans);
-                            $id++;
-                        }
-                        $dom->save($path . $file);
-                    } else {
-                        $yml = \Symfony\Component\Yaml\Yaml::dump($this->messages->all($domain),10);
-                        file_put_contents($path . $file, $yml);
-                    }
+                    file_put_contents($path . $file, $formatter->format($this->messages->all($domain)));
                 }
             }
         }
