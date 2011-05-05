@@ -133,18 +133,18 @@ class UpdateTransCommand extends Command {
 
             // save the files
             if($input->getOption('force') === true) {
-
-                $output->writeln('');
-                $output->writeln('Writing files.');
-
+                $output->writeln("\nWriting files.\n");
                 $path = $foundBundle->getPath() . '/Resources/translations/';
-                foreach ($this->mergedMessages as $domain => $messages) {
+                foreach ($this->messages->getDomains() as $domain) {
+
                     $file = $domain . '.' . $input->getArgument('locale') . '.' . $input->getOption('output-format');
                     // backup
                     if (file_exists($path . $file)) {
                         copy($path . $file, $path . '~' . $file . '.bak');
 	            	}
+
                     $output->writeln(sprintf(' > generating <comment>%s</comment>', $path . $file));
+
                     if ($input->getOption('output-format') == 'xliff') {
                         $dom = new \DOMDocument('1.0', 'utf-8');
                         $dom->formatOutput = true;
@@ -157,7 +157,7 @@ class UpdateTransCommand extends Command {
                         $xliff_file->setAttribute('original', 'file.ext');
                         $xliff_body = $xliff_file->appendChild($dom->createElement('body'));
                         $id = 1;
-                        foreach ($messages as $source => $target) {
+                        foreach ($this->messages->all($domain) as $source => $target) {
                             $trans = $dom->createElement('trans-unit');
                             $trans->setAttribute('id', $id);
                             $s = $trans->appendChild($dom->createElement('source'));
@@ -169,7 +169,7 @@ class UpdateTransCommand extends Command {
                         }
                         $dom->save($path . $file);
                     } else {
-                        $yml = \Symfony\Component\Yaml\Yaml::dump($messages,10);
+                        $yml = \Symfony\Component\Yaml\Yaml::dump($this->messages->all($domain),10);
                         file_put_contents($path . $file, $yml);
                     }
                 }
