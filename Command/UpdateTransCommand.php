@@ -16,7 +16,7 @@ class UpdateTransCommand extends Command {
 	 *
 	 * @var string
 	 */
-    private $default_domain = 'messages';
+    private $defaultDomain = 'messages';
 
     /**
      * Prefix for newly found message ids
@@ -79,6 +79,7 @@ class UpdateTransCommand extends Command {
 
             // get bundle directory
             $foundBundle = $this->getApplication()->getKernel()->getBundle($input->getArgument('bundle'));
+            $bundleTransPath = $foundBundle->getPath() . '/Resources/translations';
             $output->writeln(sprintf('Generating "<info>%s</info>" translation files for "<info>%s</info>"', $input->getArgument('locale'), $foundBundle->getName()));
 
             $output->writeln('Parsing files.');
@@ -95,7 +96,7 @@ class UpdateTransCommand extends Command {
 
             // load any existing yml translation files
             $finder = new Finder();
-            $files = $finder->files()->name('*.' . $input->getArgument('locale') . '.yml')->in($foundBundle->getPath() . '/Resources/translations');
+            $files = $finder->files()->name('*.' . $input->getArgument('locale') . '.yml')->in($bundleTransPath);
             foreach ($files as $file) {
             	$output->writeln(sprintf(' > parsing translation <comment>%s</comment>', $file->getPathname()));
             	$domain = substr($file->getFileName(), 0, strrpos($file->getFileName(), $input->getArgument('locale') . '.yml') - 1);
@@ -105,7 +106,7 @@ class UpdateTransCommand extends Command {
 
             // load any existing xliff translation files
             $finder = new Finder();
-            $files = $finder->files()->name('*.' . $input->getArgument('locale') . '.xliff')->in($foundBundle->getPath() . '/Resources/translations');
+            $files = $finder->files()->name('*.' . $input->getArgument('locale') . '.xliff')->in($bundleTransPath);
             foreach ($files as $file) {
                 $output->writeln(sprintf(' > parsing translation <comment>%s</comment>', $file->getPathname()));
                 $domain = substr($file->getFileName(), 0, strrpos($file->getFileName(), $input->getArgument('locale') . '.xliff') - 1);
@@ -115,7 +116,7 @@ class UpdateTransCommand extends Command {
 
             // load any existing php translation files
         	$finder = new Finder();
-            $files = $finder->files()->name('*.' . $input->getArgument('locale') . '.php')->in($foundBundle->getPath() . '/Resources/translations');
+            $files = $finder->files()->name('*.' . $input->getArgument('locale') . '.php')->in($bundleTransPath);
             foreach ($files as $file) {
                 $output->writeln(sprintf(' > parsing translation <comment>%s</comment>', $file->getPathname()));
                 $domain = substr($file->getFileName(), 0, strrpos($file->getFileName(), $input->getArgument('locale') . '.php') - 1);
@@ -151,11 +152,11 @@ class UpdateTransCommand extends Command {
                         $xliff = $dom->appendChild($dom->createElement('xliff'));
                         $xliff->setAttribute('version', '1.2');
                         $xliff->setAttribute('xmlns', 'urn:oasis:names:tc:xliff:document:1.2');
-                        $xliff_file = $xliff->appendChild($dom->createElement('file'));
-                        $xliff_file->setAttribute('source-language', $input->getOption('source-lang'));
-                        $xliff_file->setAttribute('datatype', 'plaintext');
-                        $xliff_file->setAttribute('original', 'file.ext');
-                        $xliff_body = $xliff_file->appendChild($dom->createElement('body'));
+                        $xliffFile = $xliff->appendChild($dom->createElement('file'));
+                        $xliffFile->setAttribute('source-language', $input->getOption('source-lang'));
+                        $xliffFile->setAttribute('datatype', 'plaintext');
+                        $xliffFile->setAttribute('original', 'file.ext');
+                        $xliffBody = $xliffFile->appendChild($dom->createElement('body'));
                         $id = 1;
                         foreach ($this->messages->all($domain) as $source => $target) {
                             $trans = $dom->createElement('trans-unit');
@@ -164,7 +165,7 @@ class UpdateTransCommand extends Command {
                             $s->appendChild($dom->createTextNode($source));
                             $t = $trans->appendChild($dom->createElement('target'));
                             $t->appendChild($dom->createTextNode($target));
-                            $xliff_body->appendChild($trans);
+                            $xliffBody->appendChild($trans);
                             $id++;
                         }
                         $dom->save($path . $file);
@@ -188,13 +189,13 @@ class UpdateTransCommand extends Command {
         	// trans block
             $domain = $node->getNode('domain')->getAttribute('value');
             $message = $node->getNode('body')->getAttribute('data');
-            $this->_saveMessage($message,$domain);
+            $this->messages->set($message, $this->prefix.$message, $domain);
         } else if ($node instanceof \Twig_Node_Print) {
         	// trans filter (be carefull of how you chain your filters)
             $message = $this->_extractMessage($node->getNode('expr'));
             $domain = $this->_extractDomain($node->getNode('expr'));
             if($message !== null && $domain!== null) {
-                $this->_saveMessage($message,$domain);
+                 $this->messages->set($message, $this->prefix.$message, $domain);
             }
         } else {
         	// continue crawling
@@ -241,22 +242,11 @@ class UpdateTransCommand extends Command {
             if($node->getNode('arguments')->hasNode(1)) {
                 return $node->getNode('arguments')->getNode(1)->getAttribute('value');
             } else {
-                return $this->default_domain;
+                return $this->defaultDomain;
             }
         }
 
         return $this->_extractDomain($node->getNode('node'));
-    }
-
-    /**
-     * Save a message to the templateMessages array
-     *
-     * @param type $message
-     * @param type $domain
-     */
-    private function _saveMessage($message, $domain = 'messages')
-    {
-        $this->messages->set($message, $this->prefix.$message, $domain);
     }
 
 }
