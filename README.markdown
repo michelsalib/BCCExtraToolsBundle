@@ -75,30 +75,34 @@ You now have the new command. You can use it as follows:
 
 - On an entity, then you can use the simpliest configuration:
 
-    /**
-    * @orm:Entity
-    */
-    class User {
+```
+/**
+ * @orm:Entity
+ */
+class User {
 
-        /**
-         * @orm:Column(length=255, unique="TRUE")
-         * @bccvalidation:Unique
-         * @assert:NotBlank
-         */
-        protected $username;
+    /**
+     * @orm:Column(length=255, unique="TRUE")
+     * @bccvalidation:Unique
+     * @assert:NotBlank
+     */
+    protected $username;
         
-        // ...
-    }
+    // ...
+}
+```
 
 - Or on any other class, you need to give the property name and the entity type:
 
-    class EmailData {
-        /**
-         * @assert:Email
-         * @assert:NotBlank
-         * @bccvalidation:Unique(property="email", class="MyBundle:User")
-         */
-        private $email;
+```
+class EmailData {
+    /**
+     * @assert:Email
+     * @assert:NotBlank
+     * @bccvalidation:Unique(property="email", class="MyBundle:User")
+     */
+    private $email;
 
-        //...
-    }
+    //...
+}
+```
