@@ -1,0 +1,9 @@
+#parameters:
+#    bcc.validator.unique.class:      BCC\ExtraToolsBundle\Validator\UniqueValidator
+
+services:
+    bcc.validator.unique:
+        class: BCC\ExtraToolsBundle\Validator\UniqueValidator
+        arguments: [@doctrine.orm.entity_manager]
+        tags:
+            - { name: validator.constraint_validator, alias: validator.unique }
