@@ -11,7 +11,7 @@ use Symfony\Component\Config\FileLocator;
  *
  * @author Michel
  */
-class ExtraToolsExtension extends Extension
+class BCCExtraToolsExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container) {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
