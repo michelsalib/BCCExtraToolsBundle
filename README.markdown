@@ -28,7 +28,7 @@ It a bundle that contains some usefull symfony2 tools.
     {
         return array(
             // ...
-            new BCC\ExtraToolsBundle\ExtraToolsBundle(),
+            new BCC\ExtraToolsBundle\BCCExtraToolsBundle(),
             // ...
         );
     }
