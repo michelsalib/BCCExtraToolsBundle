@@ -15,6 +15,8 @@ It a bundle that contains some usefull symfony2 tools.
 ### Register the namespace
 
 ``` php
+<?php
+
     // app/autoload.php
     $loader->registerNamespaces(array(
         'BCC' => __DIR__.'/../vendor/bundles',
@@ -25,6 +27,8 @@ It a bundle that contains some usefull symfony2 tools.
 ### Add ExtraToolsBundle to your application kernel
 
 ``` php
+<?php
+
     // app/AppKernel.php
     public function registerBundles()
     {
