@@ -48,7 +48,7 @@ class UpdateTransCommand extends Command {
                 ),
                 new InputOption(
                     'output-format', null, InputOption::VALUE_OPTIONAL,
-                    'Override the default output format (yml or xliff currently supported)', 'yml'
+                    'Override the default output format (yml, xliff, php or pot)', 'yml'
                 ),
                 new InputOption(
                     'source-lang', null, InputOption::VALUE_OPTIONAL,
@@ -140,6 +140,8 @@ class UpdateTransCommand extends Command {
                     $formatter = new \BCC\ExtraToolsBundle\Translation\Formatter\YmlFormatter();
                 } elseif ($input->getOption('output-format') == 'php') {
                     $formatter = new \BCC\ExtraToolsBundle\Translation\Formatter\PhpFormatter();
+                } elseif ($input->getOption('output-format') == 'pot') {
+                    $formatter = new \BCC\ExtraToolsBundle\Translation\Formatter\PotFormatter();
                 } else {
                     $formatter = new \BCC\ExtraToolsBundle\Translation\Formatter\XliffFormatter($input->getOption('source-lang'));
                 }
