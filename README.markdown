@@ -10,7 +10,15 @@ It a bundle that contains some usefull symfony2 tools.
 
 ### Get the bundle
 
-`git submodule add git://github.com/michelsalib/ExtraToolsBundle.git vendor/bundles/BCC/ExtraToolsBundle`
+Add to your `/deps` file :
+
+```
+[BCCExtraToolsBundle]
+    git=http://github.com/michelsalib/ExtraToolsBundle.git
+    target=/bundles/BCC/ExtraToolsBundle
+```
+
+And make a `php bin/vendors install`.
 
 ### Register the namespace
 

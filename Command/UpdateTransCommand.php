@@ -2,14 +2,14 @@
 
 namespace BCC\ExtraToolsBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\Command;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-class UpdateTransCommand extends Command {
+class UpdateTransCommand extends ContainerAwareCommand {
 
     /**
      * Deafult domain for found trans blocks/filters
@@ -70,7 +70,7 @@ class UpdateTransCommand extends Command {
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $twig = $this->container->get('twig');
+        $twig = $this->getContainer()->get('twig');
         $this->prefix = $input->getOption('prefix');
 
         if ($input->getOption('force') !== true && $input->getOption('dump-messages') !== true) {
