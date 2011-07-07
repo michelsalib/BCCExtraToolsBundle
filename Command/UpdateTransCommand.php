@@ -32,6 +32,12 @@ class UpdateTransCommand extends ContainerAwareCommand {
     protected $messages;
 
     /**
+     * Don't prefix newly found messages
+     * @var bool
+     */
+    protected $dontPrefix = false;
+
+    /**
      * @see Command
      */
     protected function configure()
@@ -84,6 +90,10 @@ class UpdateTransCommand extends ContainerAwareCommand {
 
             $output->writeln('Parsing files.');
 
+            if ($input->getOption('output-format') == 'pot') {
+                $this->dontPrefix = true;
+            }
+
             // load any messages from templates
             $this->messages = new \Symfony\Component\Translation\MessageCatalogue($input->getArgument('locale'));
             $finder = new Finder();
@@ -121,6 +131,16 @@ class UpdateTransCommand extends ContainerAwareCommand {
                 $output->writeln(sprintf(' > parsing translation <comment>%s</comment>', $file->getPathname()));
                 $domain = substr($file->getFileName(), 0, strrpos($file->getFileName(), $input->getArgument('locale') . '.php') - 1);
                 $loader = new \Symfony\Component\Translation\Loader\PhpFileLoader();
+                $this->messages->addCatalogue($loader->load($file->getPathname(), $input->getArgument('locale'), $domain));
+            }
+
+            // load any existing pot translation files
+            $finder = new Finder();
+            $files = $finder->files()->name('*.' . $input->getArgument('locale') . '.pot')->in($bundleTransPath);
+            foreach ($files as $file) {
+                $output->writeln(sprintf(' > parsing translation <comment>%s</comment>', $file->getPathname()));
+                $domain = substr($file->getFileName(), 0, strrpos($file->getFileName(), $input->getArgument('locale') . '.pot') - 1);
+                $loader = new \BCC\ExtraToolsBundle\Translation\Loader\PotFileLoader();
                 $this->messages->addCatalogue($loader->load($file->getPathname(), $input->getArgument('locale'), $domain));
             }
 
@@ -168,13 +188,17 @@ class UpdateTransCommand extends ContainerAwareCommand {
             // trans block
             $domain = $node->getNode('domain')->getAttribute('value');
             $message = $node->getNode('body')->getAttribute('data');
-            $this->messages->set($message, $this->prefix.$message, $domain);
-        } else if ($node instanceof \Twig_Node_Print) {
+
+            $tr = ($this->dontPrefix) ? '' : $this->prefix.$message;
+            $this->messages->set($message, $tr, $domain);
+        }
+        else if ($node instanceof \Twig_Node_Print) {
             // trans filter (be carefull of how you chain your filters)
             $message = $this->_extractMessage($node->getNode('expr'));
             $domain = $this->_extractDomain($node->getNode('expr'));
             if($message !== null && $domain!== null) {
-                 $this->messages->set($message, $this->prefix.$message, $domain);
+                $tr = ($this->dontPrefix) ? '' : $this->prefix.$message;
+                $this->messages->set($message, $tr, $domain);
             }
         } else {
             // continue crawling
