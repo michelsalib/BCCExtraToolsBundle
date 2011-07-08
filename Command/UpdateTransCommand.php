@@ -32,12 +32,6 @@ class UpdateTransCommand extends ContainerAwareCommand {
     protected $messages;
 
     /**
-     * Don't prefix newly found messages
-     * @var bool
-     */
-    protected $dontPrefix = false;
-
-    /**
      * @see Command
      */
     protected function configure()
@@ -89,10 +83,6 @@ class UpdateTransCommand extends ContainerAwareCommand {
             $output->writeln(sprintf('Generating "<info>%s</info>" translation files for "<info>%s</info>"', $input->getArgument('locale'), $foundBundle->getName()));
 
             $output->writeln('Parsing files.');
-
-            if ($input->getOption('output-format') == 'pot') {
-                $this->dontPrefix = true;
-            }
 
             // load any messages from templates
             $this->messages = new \Symfony\Component\Translation\MessageCatalogue($input->getArgument('locale'));
@@ -189,7 +179,7 @@ class UpdateTransCommand extends ContainerAwareCommand {
             $domain = $node->getNode('domain')->getAttribute('value');
             $message = $node->getNode('body')->getAttribute('data');
 
-            $tr = ($this->dontPrefix) ? '' : $this->prefix.$message;
+            $tr = empty($this->prefix) ? '' : $this->prefix.$message;
             $this->messages->set($message, $tr, $domain);
         }
         else if ($node instanceof \Twig_Node_Print) {
@@ -197,7 +187,7 @@ class UpdateTransCommand extends ContainerAwareCommand {
             $message = $this->_extractMessage($node->getNode('expr'));
             $domain = $this->_extractDomain($node->getNode('expr'));
             if($message !== null && $domain!== null) {
-                $tr = ($this->dontPrefix) ? '' : $this->prefix.$message;
+                $tr = empty($this->prefix) ? '' : $this->prefix.$message;
                 $this->messages->set($message, $tr, $domain);
             }
         } else {

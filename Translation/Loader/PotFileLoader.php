@@ -1,5 +1,4 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4: */
 
 namespace BCC\ExtraToolsBundle\Translation\Loader;
 
@@ -52,8 +51,7 @@ class PotFileLoader extends ArrayLoader implements LoaderInterface
                 if (!empty($str)) {
                     $pair[] = $str;
                 }
-            }
-            else if (strncmp($line, 'msgstr', strlen('msgstr')) === 0) { // is a translation
+            } elseif (strncmp($line, 'msgstr', strlen('msgstr')) === 0) { // is a translation
                 $str = $this->normalize(substr($line, strlen('msgstr')+1, strlen($line)));
                 if (!empty($pair)) {
                     $pair[] = $str;
