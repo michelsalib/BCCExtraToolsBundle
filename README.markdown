@@ -94,10 +94,10 @@ You now have the new command. You can use it as follows:
 
 Translate a date value :
 
-    `{{ user.createdAt | localeDate }}` to have a medium date and no time, in the current locale
+- `{{ user.createdAt | localeDate }}` to have a medium date and no time, in the current locale
 
-    `{{ user.createdAt | localeDate('long','medium') }}` to have a long date and medium time, in the current locale
+- `{{ user.createdAt | localeDate('long','medium') }}` to have a long date and medium time, in the current locale
 
 Translate a contry :
 
-    `{{ user.country | country }}` to have the country, in the current locale
+- `{{ user.country | country }}` to have the country, in the current locale
