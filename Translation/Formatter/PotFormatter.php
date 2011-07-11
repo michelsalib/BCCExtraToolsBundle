@@ -18,8 +18,8 @@ class PotFormatter implements FormatterInterface
         $output[] = '"Content-Transfer-Encoding: 8bit\n"';
         $output[] = '"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"';
         $output[] = '';
-        
-        foreach ($data as $source => $target) {
+
+        foreach ($messages as $source => $target) {
             $source = $this->clean($source);
             $target = $this->clean($target);
 
