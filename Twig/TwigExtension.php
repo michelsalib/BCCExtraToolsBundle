@@ -10,9 +10,10 @@ use Symfony\Component\Locale\Locale;
  */
 class TwigExtension extends \Twig_Extension {
     
-    public function getFilters() {
+    public function getFilters()
+    {
         return array(
-            'country' => new \Twig_Filter_Function('\BCC\ExtraToolsBundle\Twig\TwigExtension::countryFilter'),
+            'country'    => new \Twig_Filter_Function('\BCC\ExtraToolsBundle\Twig\TwigExtension::countryFilter'),
             'localeDate' => new \Twig_Filter_Function('\BCC\ExtraToolsBundle\Twig\TwigExtension::localeDateFilter'),
         );
     }
@@ -22,8 +23,10 @@ class TwigExtension extends \Twig_Extension {
      * @param type $country The contry indicator
      * @return type The localized string
      */
-    public static function countryFilter($country){
+    public static function countryFilter($country)
+    {
         $countries = Locale::getDisplayCountries(\Locale::getDefault());
+        
         return $countries[$country];
     }
     
@@ -36,7 +39,8 @@ class TwigExtension extends \Twig_Extension {
      * @param string $timeType
      * @return string The string representation
      */
-    public static function localeDateFilter($date, $dateType = 'medium', $timeType = 'none'){
+    public static function localeDateFilter($date, $dateType = 'medium', $timeType = 'none')
+    {
         $values = array(
             'none'   => \IntlDateFormatter::NONE,
             'short'  => \IntlDateFormatter::SHORT,
@@ -45,10 +49,12 @@ class TwigExtension extends \Twig_Extension {
             'full'   => \IntlDateFormatter::FULL,
         );
         $dateFormater = \IntlDateFormatter::create(\Locale::getDefault(), $values[$dateType], $values[$timeType]);
+        
         return $dateFormater->format($date);
     }
     
-    public function getName() {
+    public function getName()
+    {
         return 'bcc';
     }
 }
