@@ -178,17 +178,14 @@ class UpdateTransCommand extends ContainerAwareCommand {
             // trans block
             $domain = $node->getNode('domain')->getAttribute('value');
             $message = $node->getNode('body')->getAttribute('data');
-
-            $tr = empty($this->prefix) ? '' : $this->prefix.$message;
-            $this->messages->set($message, $tr, $domain);
+            $this->messages->set($message, $this->prefix.$message, $domain);
         }
-        else if ($node instanceof \Twig_Node_Print) {
+        elseif ($node instanceof \Twig_Node_Print) {
             // trans filter (be carefull of how you chain your filters)
             $message = $this->_extractMessage($node->getNode('expr'));
             $domain = $this->_extractDomain($node->getNode('expr'));
             if($message !== null && $domain!== null) {
-                $tr = empty($this->prefix) ? '' : $this->prefix.$message;
-                $this->messages->set($message, $tr, $domain);
+                $this->messages->set($message, $this->prefix.$message, $domain);
             }
         } else {
             // continue crawling
