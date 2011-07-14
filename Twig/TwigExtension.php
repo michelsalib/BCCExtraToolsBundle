@@ -19,15 +19,16 @@ class TwigExtension extends \Twig_Extension {
     }
     
     /**
-     * Translate a contry indicator to its locale full name
-     * @param type $country The contry indicator
-     * @return type The localized string
+     * Translate a country indicator to its locale full name
+     * @param string $country The contry indicator
+     * @param string $default The default value is the country does not exist (optionnal)
+     * @return string The localized string
      */
-    public static function countryFilter($country)
+    public static function countryFilter($country, $default = '')
     {
         $countries = Locale::getDisplayCountries(\Locale::getDefault());
         
-        return array_key_exists($country, $countries) ? $countries[$country] : '';
+        return array_key_exists($country, $countries) ? $countries[$country] : $default;
     }
     
     /**

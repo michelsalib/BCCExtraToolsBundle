@@ -101,3 +101,5 @@ Translate a date value :
 Translate a contry :
 
 - `{{ user.country | country }}` to have the country, in the current locale
+
+- `{{ user.country | country('country does not exist') }}` Define the returned value if the country does not exist
