@@ -27,7 +27,7 @@ class TwigExtension extends \Twig_Extension {
     {
         $countries = Locale::getDisplayCountries(\Locale::getDefault());
         
-        return $countries[$country];
+        return array_key_exists($country, $countries) ? $countries[$country] : '';
     }
     
     /**
