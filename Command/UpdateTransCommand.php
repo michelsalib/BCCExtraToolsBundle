@@ -2,14 +2,14 @@
 
 namespace BCC\ExtraToolsBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\Command;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-class UpdateTransCommand extends Command {
+class UpdateTransCommand extends ContainerAwareCommand {
 
     /**
      * Deafult domain for found trans blocks/filters
@@ -70,7 +70,7 @@ class UpdateTransCommand extends Command {
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $twig = $this->container->get('twig');
+        $twig = $this->getContainer()->get('twig');
         $this->prefix = $input->getOption('prefix');
 
         if ($input->getOption('force') !== true && $input->getOption('dump-messages') !== true) {
@@ -124,6 +124,16 @@ class UpdateTransCommand extends Command {
                 $this->messages->addCatalogue($loader->load($file->getPathname(), $input->getArgument('locale'), $domain));
             }
 
+            // load any existing pot translation files
+            $finder = new Finder();
+            $files = $finder->files()->name('*.' . $input->getArgument('locale') . '.pot')->in($bundleTransPath);
+            foreach ($files as $file) {
+                $output->writeln(sprintf(' > parsing translation <comment>%s</comment>', $file->getPathname()));
+                $domain = substr($file->getFileName(), 0, strrpos($file->getFileName(), $input->getArgument('locale') . '.pot') - 1);
+                $loader = new \BCC\ExtraToolsBundle\Translation\Loader\PotFileLoader();
+                $this->messages->addCatalogue($loader->load($file->getPathname(), $input->getArgument('locale'), $domain));
+            }
+
             // show compiled list of messages
             if($input->getOption('dump-messages') === true){
                 foreach ($this->messages->getDomains() as $domain) {
@@ -169,12 +179,13 @@ class UpdateTransCommand extends Command {
             $domain = $node->getNode('domain')->getAttribute('value');
             $message = $node->getNode('body')->getAttribute('data');
             $this->messages->set($message, $this->prefix.$message, $domain);
-        } else if ($node instanceof \Twig_Node_Print) {
+        }
+        elseif ($node instanceof \Twig_Node_Print) {
             // trans filter (be carefull of how you chain your filters)
             $message = $this->_extractMessage($node->getNode('expr'));
             $domain = $this->_extractDomain($node->getNode('expr'));
             if($message !== null && $domain!== null) {
-                 $this->messages->set($message, $this->prefix.$message, $domain);
+                $this->messages->set($message, $this->prefix.$message, $domain);
             }
         } else {
             // continue crawling
