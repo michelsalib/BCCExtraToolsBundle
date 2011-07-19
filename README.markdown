@@ -15,7 +15,7 @@ Add to your `/deps` file :
 
 ```
 [BCCExtraToolsBundle]
-    git=http://github.com/michelsalib/ExtraToolsBundle.git
+    git=http://github.com/michelsalib/BCCExtraToolsBundle.git
     target=/bundles/BCC/ExtraToolsBundle
 ```
 
