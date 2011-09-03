@@ -51,6 +51,10 @@ class TwigExtension extends \Twig_Extension {
         );
         $dateFormater = \IntlDateFormatter::create(\Locale::getDefault(), $values[$dateType], $values[$timeType], date_default_timezone_get());
         
+        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50304) {
+            $date = $date->getTimestamp();
+        }
+
         return $dateFormater->format($date);
     }
     
