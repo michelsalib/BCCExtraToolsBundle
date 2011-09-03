@@ -49,7 +49,7 @@ class TwigExtension extends \Twig_Extension {
             'long'   => \IntlDateFormatter::LONG,
             'full'   => \IntlDateFormatter::FULL,
         );
-        $dateFormater = \IntlDateFormatter::create(\Locale::getDefault(), $values[$dateType], $values[$timeType]);
+        $dateFormater = \IntlDateFormatter::create(\Locale::getDefault(), $values[$dateType], $values[$timeType], date_default_timezone_get());
         
         return $dateFormater->format($date);
     }
