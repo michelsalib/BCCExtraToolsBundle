@@ -2,6 +2,10 @@
 
 It a bundle that contains some usefull symfony2 tools.
 
+## Warning
+
+The `bcc:trans:update` command had been merged into the framework and thus won't be maintained here anymore. The new name is `translation:extract`.
+
 ## Features:
 
 - a `bcc:trans:update` command that extract all your missing i18n message from your twig templates and saves into yaml, xliff, php or pot translation files.
