@@ -8,3 +8,5 @@ services:
     class: BCC\ExtraToolsBundle\Translation\Loader\MoFileLoader
     tags:
       - { name: translation.loader, alias: mo }
+  bcc_extra_tools.date_formatter:
+    class: BCC\ExtraToolsBundle\Util\DateFormatter

@@ -10,6 +10,7 @@ The `bcc:trans:update` command had been merged into the framework and thus won't
 
 - a `bcc:trans:update` command that extract all your missing i18n message from your twig templates and saves into yaml, xliff, php or pot translation files.
 - a twig extension that translates dates and contries
+- a date formatter that formats and translates dates and also parses multiple forms of localized date string
 
 ## Installation and configuration:
 
@@ -108,3 +109,34 @@ Translate a contry :
 
 - `{{ user.country | country('c
 ountry does not exist') }}` Define the returned value if the country does not exist
+
+### DateFormatter examples
+
+Get the service :
+
+``` php
+<?php
+
+$dateFormatter = $container->get('bcc_extra_tools.date_formatter');
+
+```
+
+Parse a date :
+
+``` php
+<?php
+
+$date = $dateFormatter->parse('November 1, 2011', 'en'); // obtains a datetime instance
+
+```
+
+Format a date :
+
+``` php
+<?php
+
+echo $dateFormatter->format($date, 'long', 'none', 'fr'); // echos : "1 novembre 2011"
+
+```
+
+Note that the locale parameter (here 'fr' and 'en') are optionnal, default is the current locale.

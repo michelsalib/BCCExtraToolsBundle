@@ -3,6 +3,7 @@
 namespace BCC\ExtraToolsBundle\Twig;
 
 use Symfony\Component\Locale\Locale;
+use BCC\ExtraToolsBundle\Util\DateFormatter;
 
 /**
  * The twig extensions of the BCC bundle
@@ -49,22 +50,9 @@ class TwigExtension extends \Twig_Extension {
      */
     public static function localeDateFilter($date, $dateType = 'medium', $timeType = 'none', $locale = null)
     {
-        $values = array(
-            'none'   => \IntlDateFormatter::NONE,
-            'short'  => \IntlDateFormatter::SHORT,
-            'medium' => \IntlDateFormatter::MEDIUM,
-            'long'   => \IntlDateFormatter::LONG,
-            'full'   => \IntlDateFormatter::FULL,
-        );
-	
-        $locale       = $locale == null ? \Locale::getDefault() : $locale;
-        $dateFormater = \IntlDateFormatter::create($locale, $values[$dateType], $values[$timeType], date_default_timezone_get());
+        $formatter = new DateFormatter();
         
-        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50304) {
-            $date = $date->getTimestamp();
-        }
-
-        return $dateFormater->format($date);
+        return $formatter->format($date, $dateType, $timeType, $locale);
     }
     
     public function getName()
