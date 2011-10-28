@@ -8,5 +8,44 @@ services:
     class: BCC\ExtraToolsBundle\Translation\Loader\MoFileLoader
     tags:
       - { name: translation.loader, alias: mo }
+
   bcc_extra_tools.date_formatter:
     class: BCC\ExtraToolsBundle\Util\DateFormatter
+
+  bcc_extra_tools.unit_converter:
+    class: BCC\ExtraToolsBundle\Util\UnitConverter\ChainUnitConverter
+
+  bcc_extra_tools.ratio_unit_converter:
+    class: BCC\ExtraToolsBundle\Util\UnitConverter\RatioUnitConverter
+    tags:
+      - { name: bcc_extra_tools.unit_converter }
+
+  bcc_extra_tools.ratio_unit_provider.distance:
+    class: BCC\ExtraToolsBundle\Util\UnitConverter\Extension\DistanceUnitProvider
+    tags:
+      - { name: bcc_extra_tools.ratio_unit_provider } 
+
+  bcc_extra_tools.ratio_unit_provider.distance.fr:
+    class: BCC\ExtraToolsBundle\Util\UnitConverter\Extension\fr\DistanceUnitProvider
+    tags:
+      - { name: bcc_extra_tools.ratio_unit_provider }
+
+  bcc_extra_tools.ratio_unit_provider.time:
+    class: BCC\ExtraToolsBundle\Util\UnitConverter\Extension\TimeUnitProvider
+    tags:
+      - { name: bcc_extra_tools.ratio_unit_provider } 
+
+  bcc_extra_tools.ratio_unit_provider.time.fr:
+    class: BCC\ExtraToolsBundle\Util\UnitConverter\Extension\fr\TimeUnitProvider
+    tags:
+      - { name: bcc_extra_tools.ratio_unit_provider }
+
+  bcc_extra_tools.ratio_unit_provider.computing_capacity:
+    class: BCC\ExtraToolsBundle\Util\UnitConverter\Extension\ComputingCapacityUnitProvider
+    tags:
+      - { name: bcc_extra_tools.ratio_unit_provider } 
+
+  bcc_extra_tools.ratio_unit_provider.weight:
+    class: BCC\ExtraToolsBundle\Util\UnitConverter\Extension\WeightUnitProvider
+    tags:
+      - { name: bcc_extra_tools.ratio_unit_provider } 

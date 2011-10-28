@@ -11,6 +11,7 @@ The `bcc:trans:update` command had been merged into the framework and thus won't
 - a `bcc:trans:update` command that extract all your missing i18n message from your twig templates and saves into yaml, xliff, php or pot translation files.
 - a twig extension that translates dates and contries
 - a date formatter that formats and translates dates and also parses multiple forms of localized date string
+- a unit converter that is ignly extensible and convert units
 
 ## Installation and configuration:
 
@@ -112,7 +113,7 @@ ountry does not exist') }}` Define the returned value if the country does not ex
 
 ### DateFormatter examples
 
-Get the service :
+Get the service:
 
 ``` php
 <?php
@@ -121,7 +122,7 @@ $dateFormatter = $container->get('bcc_extra_tools.date_formatter');
 
 ```
 
-Parse a date :
+Parse a date:
 
 ``` php
 <?php
@@ -130,13 +131,44 @@ $date = $dateFormatter->parse('November 1, 2011', 'en'); // obtains a datetime i
 
 ```
 
-Format a date :
+Format a date:
 
 ``` php
 <?php
 
-echo $dateFormatter->format($date, 'long', 'none', 'fr'); // echos : "1 novembre 2011"
+echo $dateFormatter->format($date, 'long', 'none', 'fr'); // echoes : "1 novembre 2011"
 
 ```
 
 Note that the locale parameter (here 'fr' and 'en') are optionnal, default is the current locale.
+
+### Unit converter examples
+
+Get the service:
+
+``` php
+<?php
+
+$unitConverter = $container->get('bcc_extra_tools.unit_converter');
+
+```
+
+Convert a value:
+
+``` php
+<?php
+
+echo $unitConverter->parse(1000, 'm', 'km'); // echoes : 1
+
+```
+
+Guess the source unit:
+
+``` php
+<?php
+
+echo $unitConverter->parse('1h', 'm'); // echoes : 60
+
+```
+
+More examples in the tests: ./Tests/Util/UnitConverterTest.
