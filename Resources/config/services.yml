@@ -49,3 +49,8 @@ services:
     class: BCC\ExtraToolsBundle\Util\UnitConverter\Extension\WeightUnitProvider
     tags:
       - { name: bcc_extra_tools.ratio_unit_provider } 
+
+  bcc_extra_tools.ratio_unit_provider.frequency:
+    class: BCC\ExtraToolsBundle\Util\UnitConverter\Extension\FrequencyUnitProvider
+    tags:
+      - { name: bcc_extra_tools.ratio_unit_provider } 

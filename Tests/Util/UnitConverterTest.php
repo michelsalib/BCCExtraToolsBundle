@@ -71,6 +71,18 @@ class UnitConverterTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(null, $value);
     }
     
+    public function testConvertFrequency() {
+        // ARRANGE
+        $converter = new ChainUnitConverter();
+        $ratioConverter = new RatioUnitConverter();
+        $ratioConverter->registerRatioUnitProvider(new Extension\FrequencyUnitProvider());
+        $converter->registerConverter($ratioConverter);
+        
+        // ACT - ASSERT
+        $value = $converter->convert(1, 'GHz', 'MHz');
+        $this->assertEquals(1000, $value);
+    }
+    
     public function testParseDirtyUnits() {
         // ARRANGE
         $converter = new ChainUnitConverter();
