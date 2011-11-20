@@ -82,7 +82,19 @@ class UnitConverterTest extends \PHPUnit_Framework_TestCase {
         $value = $converter->convert(1, 'GHz', 'MHz');
         $this->assertEquals(1000, $value);
     }
-    
+
+    public function testConvertFloat() {
+        // ARRANGE
+        $converter = new ChainUnitConverter();
+        $ratioConverter = new RatioUnitConverter();
+        $ratioConverter->registerRatioUnitProvider(new Extension\ComputingCapacityUnitProvider());
+        $converter->registerConverter($ratioConverter);
+
+        // ACT - ASSERT
+        $value = $converter->convert(128, 'Mo', 'Go');
+        $this->assertEquals(0.128, $value);
+    }
+
     public function testParseDirtyUnits() {
         // ARRANGE
         $converter = new ChainUnitConverter();

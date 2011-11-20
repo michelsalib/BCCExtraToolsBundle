@@ -39,16 +39,19 @@ class DateFormatter {
      * Parameters dateType and timeType defines a kind of format. Allowed values are (none|short|medium|long|full).
      * Default is medium for the date and no time.
      * Uses default system locale by default. Pass another locale string to force a different translation
+     * You might not like the default formats, so you can pass a custom pattern as last argument.
      *
      * @param mixed $date
      * @param string $dateType
      * @param string $timeType
      * @param mixed $locale
+     * @param string $pattern
+     *
      * @return string The string representation
      */
-    public function format($date, $dateType = 'medium', $timeType = 'none', $locale = null)
+    public function format($date, $dateType = 'medium', $timeType = 'none', $locale = null, $pattern = null)
     {	
-        $dateFormater = \IntlDateFormatter::create($locale ?: \Locale::getDefault(), $this->formats[$dateType], $this->formats[$timeType], date_default_timezone_get());
+        $dateFormater = \IntlDateFormatter::create($locale ?: \Locale::getDefault(), $this->formats[$dateType], $this->formats[$timeType], date_default_timezone_get(), null, $pattern);
         
         if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50304) {
             $date = $date->getTimestamp();
@@ -58,7 +61,7 @@ class DateFormatter {
     }
     
     /**
-     * Parse a string representation of a date to a timestamp
+     * Parse a string representation of a date to a timestamp.
      * 
      * @param string $date
      * @param string $locale
