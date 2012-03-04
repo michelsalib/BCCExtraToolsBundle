@@ -2,6 +2,8 @@
 
 It a bundle that contains some usefull symfony2 tools.
 
+[![Build Status](https://secure.travis-ci.org/michelsalib/BCCExtraToolsBundle.png?branch=master)](http://travis-ci.org/michelsalib/BCCExtraToolsBundle)
+
 ## Warning
 
 The `bcc:trans:update` command had been merged into the framework and thus won't be maintained here anymore. The new name is `translation:extract`.
