@@ -1,3 +1,6 @@
+parameters:
+    bcc_extra_tools.extension.twig.class: BCC\ExtraToolsBundle\Twig\TwigExtension
+
 services:
   translation.loader.po:
     class: BCC\ExtraToolsBundle\Translation\Loader\PotFileLoader
@@ -53,4 +56,13 @@ services:
   bcc_extra_tools.ratio_unit_provider.frequency:
     class: BCC\ExtraToolsBundle\Util\UnitConverter\Extension\FrequencyUnitProvider
     tags:
-      - { name: bcc_extra_tools.ratio_unit_provider } 
+      - { name: bcc_extra_tools.ratio_unit_provider }
+
+  bcc_extra_tools.twig.extension:
+    class: %bcc_extra_tools.extension.twig.class%
+    arguments:
+      - @bcc_extra_tools.unit_converter
+      - @translator
+    tags:
+      - { name: twig.extension }
+    public: false
