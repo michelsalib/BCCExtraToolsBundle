@@ -86,15 +86,18 @@ class TwigExtension extends \Twig_Extension
      * @param string $destinationUnit
      * @param string the locale (optional)
      *
-     * @return mixed The converted value
+     * @return string|null The converted value
      */
     public function convertFilter($value, $sourceUnit, $destinationUnit, $unitName, $locale = null)
     {
-        $translatedUnitName = $this->translator->trans($unitName, array(), 'BCCExtraToolsBundle');
+        if (null !== $value) {
+            $translatedUnitName = $this->translator->trans($unitName, array(), 'BCCExtraToolsBundle');
 
-        $value = $this->converter->convert($value, $sourceUnit, $destinationUnit, $locale);
+            $value = $this->converter->convert($value, $sourceUnit, $destinationUnit, $locale);
+            $value = $value . ' ' . $translatedUnitName;
+        }
 
-        return $value . ' ' . $translatedUnitName;
+        return $value;
     }
     
     public function getName()
