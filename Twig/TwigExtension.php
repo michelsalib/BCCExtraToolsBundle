@@ -3,19 +3,38 @@
 namespace BCC\ExtraToolsBundle\Twig;
 
 use Symfony\Component\Locale\Locale;
+use Symfony\Component\Translation\TranslatorInterface;
+
 use BCC\ExtraToolsBundle\Util\DateFormatter;
+use BCC\ExtraToolsBundle\Util\UnitConverter\UnitConverterInterface;
 
 /**
  * The twig extensions of the BCC bundle
  * Has a dependency to the apache intl module
  */
-class TwigExtension extends \Twig_Extension {
-    
+class TwigExtension extends \Twig_Extension
+{
+    protected $converter;
+    protected $translator;
+
+    /**
+     * Construct
+     *
+     * @param UnitConverterInterface $converterUtil
+     * @param TranslatorInterface    $translator
+     */
+    public function __construct(UnitConverterInterface $converter, TranslatorInterface $translator)
+    {
+        $this->converter  = $converter;
+        $this->translator = $translator;
+    }
+
     public function getFilters()
     {
         return array(
-            'country'    => new \Twig_Filter_Function('\BCC\ExtraToolsBundle\Twig\TwigExtension::countryFilter'),
-            'localeDate' => new \Twig_Filter_Function('\BCC\ExtraToolsBundle\Twig\TwigExtension::localeDateFilter'),
+            'country'     => new \Twig_Filter_Function('\BCC\ExtraToolsBundle\Twig\TwigExtension::countryFilter'),
+            'localeDate'  => new \Twig_Filter_Function('\BCC\ExtraToolsBundle\Twig\TwigExtension::localeDateFilter'),
+            'convertUnit' => new \Twig_Filter_Method($this, 'convertFilter'),
         );
     }
     
@@ -56,6 +75,29 @@ class TwigExtension extends \Twig_Extension {
         $formatter = new DateFormatter();
         
         return $formatter->format($date, $dateType, $timeType, $locale, $pattern);
+    }
+
+    /**
+     * Convert a value into another unit.
+     * Returns null if fails or not supported.
+     *
+     * @param mixed $value
+     * @param string $sourceUnit
+     * @param string $destinationUnit
+     * @param string the locale (optional)
+     *
+     * @return string|null The converted value
+     */
+    public function convertFilter($value, $sourceUnit, $destinationUnit, $unitName, $locale = null)
+    {
+        if (null !== $value) {
+            $translatedUnitName = $this->translator->trans($unitName, array(), 'BCCExtraToolsBundle');
+
+            $value = $this->converter->convert($value, $sourceUnit, $destinationUnit, $locale);
+            $value = $value . ' ' . $translatedUnitName;
+        }
+
+        return $value;
     }
     
     public function getName()

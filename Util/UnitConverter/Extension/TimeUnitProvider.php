@@ -16,10 +16,11 @@ class TimeUnitProvider extends BaseRatioUnitProvider {
      */
     public function getRatios() {
         return array(
-            's'   => 1,
-            'sec' => 1,
-            'm'   => 60,
-            'h'   => 60*60,
+            's'   => 1,       // second
+            'sec' => 1,       // second
+            'm'   => 60,      // minute
+            'h'   => 60*60,   // hour
+            'd'   => 60*60*24 // day
         );
     }
 
