@@ -60,9 +60,9 @@ services:
 
   bcc_extra_tools.twig.extension:
     class: %bcc_extra_tools.extension.twig.class%
-    arguments:
-      - @bcc_extra_tools.unit_converter
-      - @translator
+    calls:
+      - [ setUnitConverter, [ "@bcc_extra_tools.unit_converter" ] ]
+      - [ setTranslator, [ "@translator" ] ]
     tags:
       - { name: twig.extension }
     public: false
