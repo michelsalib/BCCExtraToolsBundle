@@ -17,18 +17,16 @@ class TwigExtension extends \Twig_Extension
     protected $converter;
     protected $translator;
 
-    /**
-     * Construct
-     *
-     * @param UnitConverterInterface $converterUtil
-     * @param TranslatorInterface    $translator
-     */
-    public function __construct(UnitConverterInterface $converter, TranslatorInterface $translator)
+    public function setUnitConverter(UnitConverterInterface $converter)
     {
         $this->converter  = $converter;
+    }
+    
+    public function setTranslator(TranslatorInterface $translator)
+    {
         $this->translator = $translator;
     }
-
+    
     public function getFilters()
     {
         return array(
